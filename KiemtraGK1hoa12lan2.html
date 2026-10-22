@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điệp Vụ: Kiểm Tra Giữa Kì 1 - Hóa 12</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a8a; 
+            --primary-light: #3b82f6;
+            --secondary: #dc2626; 
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --success: #10b981;
+            --danger: #ef4444;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 15px 10px; display: flex; justify-content: center; line-height: 1.6; }
+        .container { max-width: 850px; width: 100%; }
+
+        .card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); border-top: 5px solid var(--primary); }
+        .header-card { text-align: center; background: linear-gradient(135deg, #0f172a, #1e3a8a); color: white; border-top: none; }
+        .header-card h1 { margin: 0 0 5px 0; font-size: 1.8rem; text-transform: uppercase; color: #f87171; }
+        .header-card h2 { margin: 0 0 15px 0; font-size: 1.1rem; font-weight: 500; opacity: 0.9; }
+        
+        .student-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; }
+        .student-info input { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; text-align: center;}
+
+        h3 { color: var(--primary); margin-top: 0; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; text-transform: uppercase; font-size: 1.2rem;}
+        
+        input[type="text"], select { width: 100%; padding: 10px; border: 1.5px solid #d1d5db; border-radius: 6px; font-size: 15px; transition: 0.3s; font-family: 'Roboto', sans-serif;}
+        input[type="text"]:focus, select:focus { border-color: var(--primary); outline: none; }
+
+        .question { margin-bottom: 20px; background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; }
+        .question-text { font-weight: bold; margin-top: 0; margin-bottom: 12px; font-size: 1.05rem; }
+
+        .options label { display: flex; align-items: center; margin-bottom: 8px; cursor: pointer; padding: 10px; border-radius: 6px; background: #fff; border: 1px solid #e5e7eb; transition: 0.2s; }
+        .options label:hover { background: #f3f4f6; }
+        .options input[type="radio"] { margin-right: 10px; transform: scale(1.2); }
+        
+        .tf-grid { display: grid; grid-template-columns: 3fr 1fr; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed #e5e7eb; }
+        .tf-opts { display: flex; gap: 10px; justify-content: flex-end; }
+        .tf-opts label { background: #fff; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; font-size: 0.9rem; cursor: pointer;}
+        
+        .btn-submit { width: 100%; border: none; padding: 16px; font-size: 16px; border-radius: 30px; cursor: pointer; font-weight: bold; text-transform: uppercase; color: white; background: linear-gradient(135deg, var(--secondary), #991b1b); box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3); margin-top: 20px;}
+        .btn-checkpoint { width: 100%; border: none; padding: 16px; font-size: 16px; border-radius: 12px; cursor: pointer; font-weight: bold; text-transform: uppercase; color: white; background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 6px rgba(5, 150, 105, 0.3); margin-top: 20px; transition: 0.3s;}
+        
+        .remedial-box { display: none; margin-top: 20px; padding: 20px; background: #fffbeb; border: 2px dashed #f59e0b; border-radius: 8px; text-align: left; }
+        .remedial-box h4 { color: #b45309; font-size: 1.2rem; margin-top: 0; text-align: center; text-transform: uppercase;}
+        
+        /* Chống hiển thị lỗi khi chưa làm */
+        .section-locked { display: none; opacity: 0; transition: opacity 1s ease-in-out; }
+        
+        /* Đồng hồ đếm ngược */
+        #timer-box { font-size: 1.5rem; font-weight: bold; color: #fef08a; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 20px; margin-top: 10px; display: inline-block; }
+
+        @media(max-width: 600px) { 
+            .student-info { grid-template-columns: 1fr; } 
+            .tf-grid { grid-template-columns: 1fr; }
+            .tf-opts { justify-content: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- TRẠM CHỈ HUY -->
+        <div class="card header-card">
+            <h1>HỒ SƠ TỔNG KẾT</h1>
+            <h2>CHUYÊN ÁN HÓA 12: KIỂM TRA GIỮA KÌ SỐ 1</h2>
+            
+            <div id="timer-box">⏳ 20:00</div>
+            
+            <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px;">
+                <button type="button" id="btnSound" onclick="toggleSound()" style="background: #10b981; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.3s;">
+                    🔊 Âm thanh: BẬT
+                </button>
+            </div>
+            
+            <p style="font-style: italic; color: #e2e8f0; font-size: 0.9rem; margin-top: 10px;">* Hệ thống giám sát gian lận đã được kích hoạt. Không thoát màn hình.</p>
+            <div class="student-info">
+                <input type="text" id="studentName" placeholder="Mã định danh thám tử (Họ tên)..." required>
+                <input type="text" id="studentClass" placeholder="Đơn vị (Lớp)..." required>
+            </div>
+        </div>
+
+        <form id="quizForm">
+            <!-- ================= PHẦN I: TRẮC NGHIỆM ================= -->
+            <div id="part1-section" class="card">
+                <h3>📂 TRẠM 1: CÂU TRẮC NGHIỆM NHIỀU PHƯƠNG ÁN LỰA CHỌN</h3>
+                <p style="font-style: italic; color: #6b7280; margin-top: -10px; margin-bottom: 20px;">* Nhiệm vụ: Trả lời 18 câu hỏi. Yêu cầu đúng >= 12/18 câu để qua ải.</p>
+
+                <!-- 18 CÂU HỎI TRẮC NGHIỆM -->
+                <div class="question check-mcq-p1" data-ans="B"><p class="question-text">Câu 1. Từ phổ khối lượng, phân tử khối của ester X được xác định là 88. Công thức phù hợp với X là:</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q1" value="A"> A. CH3CH2OH.</label><label><input type="radio" name="p1_q1" value="B"> B. CH3COOC2H5.</label><label><input type="radio" name="p1_q1" value="C"> C. C3H7COOH.</label><label><input type="radio" name="p1_q1" value="D"> D. HCOOC2H5.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="B"><p class="question-text">Câu 2. Chất béo là triester của acid béo với:</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q2" value="A"> A. ethylene glycol.</label><label><input type="radio" name="p1_q2" value="B"> B. glycerol.</label><label><input type="radio" name="p1_q2" value="C"> C. ethanol.</label><label><input type="radio" name="p1_q2" value="D"> D. phenol.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="D"><p class="question-text">Câu 3. Loại dầu nào sau đây không phải là chất béo?</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q3" value="A"> A. Dầu vừng.</label><label><input type="radio" name="p1_q3" value="B"> B. Dầu oliu.</label><label><input type="radio" name="p1_q3" value="C"> C. Dầu gan cá.</label><label><input type="radio" name="p1_q3" value="D"> D. Dầu luyn.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="C"><p class="question-text">Câu 4. Xà phòng hóa CH3COOC2H5 trong dung dịch NaOH đun nóng, thu được muối có công thức là:</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q4" value="A"> A. C2H5ONa.</label><label><input type="radio" name="p1_q4" value="B"> B. C2H5COONa.</label><label><input type="radio" name="p1_q4" value="C"> C. CH3COONa.</label><label><input type="radio" name="p1_q4" value="D"> D. HCOONa.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="C"><p class="question-text">Câu 5. Trong phân tử của carbohydrate luôn có:</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q5" value="A"> A. nhóm chức aldehyde.</label><label><input type="radio" name="p1_q5" value="B"> B. nhóm chức ketone.</label><label><input type="radio" name="p1_q5" value="C"> C. nhóm chức alcohol.</label><label><input type="radio" name="p1_q5" value="D"> D. nhóm chức acid.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="D"><p class="question-text">Câu 6. Carbohydrate nào sau đây là thành phần chính của mật ong?</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q6" value="A"> A. Glucose.</label><label><input type="radio" name="p1_q6" value="B"> B. Maltose.</label><label><input type="radio" name="p1_q6" value="C"> C. Saccharose.</label><label><input type="radio" name="p1_q6" value="D"> D. Fructose.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="D"><p class="question-text">Câu 7. Phát biểu nào sau đây về glucose không đúng?</p><div class="options"><label><input type="radio" name="p1_q7" value="A"> A. Glucose phản ứng được với thuốc thử Tollens.</label><label><input type="radio" name="p1_q7" value="B"> B. Glucose phản ứng được với nước bromine.</label><label><input type="radio" name="p1_q7" value="C"> C. Glucose có công thức phân tử C6H12O6.</label><label><input type="radio" name="p1_q7" value="D"> D. Glucose thuộc loại disaccharide.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="C"><p class="question-text">Câu 8. Phân tử saccharose được tạo bởi:</p><div class="options"><label><input type="radio" name="p1_q8" value="A"> A. một gốc glucose và một gốc maltose.</label><label><input type="radio" name="p1_q8" value="B"> B. hai gốc fructose.</label><label><input type="radio" name="p1_q8" value="C"> C. một gốc glucose và một gốc fructose.</label><label><input type="radio" name="p1_q8" value="D"> D. hai gốc glucose.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="C"><p class="question-text">Câu 9. Ở nhiệt độ thường, nhỏ vài giọt dung dịch iodine vào hồ tinh bột thấy xuất hiện màu:</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q9" value="A"> A. vàng.</label><label><input type="radio" name="p1_q9" value="B"> B. nâu đỏ.</label><label><input type="radio" name="p1_q9" value="C"> C. xanh tím.</label><label><input type="radio" name="p1_q9" value="D"> D. hồng.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="D"><p class="question-text">Câu 10. Công thức phân tử của saccharose là:</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q10" value="A"> A. C6H12O6.</label><label><input type="radio" name="p1_q10" value="B"> B. C2H4O2.</label><label><input type="radio" name="p1_q10" value="C"> C. (C6H10O5)n.</label><label><input type="radio" name="p1_q10" value="D"> D. C12H22O11.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="A"><p class="question-text">Câu 11. Tên gọi theo danh pháp thay thế của chất có công thức cấu tạo CH3–NH2 là:</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q11" value="A"> A. methanamine.</label><label><input type="radio" name="p1_q11" value="B"> B. ethylamine.</label><label><input type="radio" name="p1_q11" value="C"> C. methylamine.</label><label><input type="radio" name="p1_q11" value="D"> D. ethanamine.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="A"><p class="question-text">Câu 12. Dung dịch nào sau đây làm quỳ tím hóa xanh?</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q12" value="A"> A. Dimethylamine.</label><label><input type="radio" name="p1_q12" value="B"> B. Aniline.</label><label><input type="radio" name="p1_q12" value="C"> C. Acetic acid.</label><label><input type="radio" name="p1_q12" value="D"> D. Sodium chloride.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="A"><p class="question-text">Câu 13. α-amino acid là amino acid có nhóm amino gắn với carbon ở vị trí số:</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q13" value="A"> A. 2.</label><label><input type="radio" name="p1_q13" value="B"> B. 4.</label><label><input type="radio" name="p1_q13" value="C"> C. 1.</label><label><input type="radio" name="p1_q13" value="D"> D. 3.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="C"><p class="question-text">Câu 14. Ở điều kiện thường, chất nào sau đây là chất rắn?</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q14" value="A"> A. Dimethylamine.</label><label><input type="radio" name="p1_q14" value="B"> B. Ethylamine.</label><label><input type="radio" name="p1_q14" value="C"> C. Glycine.</label><label><input type="radio" name="p1_q14" value="D"> D. Methylamine.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="B"><p class="question-text">Câu 15. Tripeptide là hợp chất mà phân tử có:</p><div class="options"><label><input type="radio" name="p1_q15" value="A"> A. hai liên kết peptide, ba gốc β-amino acid.</label><label><input type="radio" name="p1_q15" value="B"> B. hai liên kết peptide, ba gốc α-amino acid.</label><label><input type="radio" name="p1_q15" value="C"> C. ba liên kết peptide, hai gốc α-amino acid.</label><label><input type="radio" name="p1_q15" value="D"> D. ba liên kết peptide, ba gốc α-amino acid.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="B"><p class="question-text">Câu 16. Protein phản ứng với Cu(OH)2/OH– tạo sản phẩm có màu đặc trưng là:</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q16" value="A"> A. màu vàng.</label><label><input type="radio" name="p1_q16" value="B"> B. màu tím.</label><label><input type="radio" name="p1_q16" value="C"> C. màu da cam.</label><label><input type="radio" name="p1_q16" value="D"> D. màu đỏ.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="D"><p class="question-text">Câu 17. Trong cơ thể, enzyme có chức năng nào sau đây?</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q17" value="A"> A. Cấu trúc tế bào.</label><label><input type="radio" name="p1_q17" value="B"> B. Chất điện giải.</label><label><input type="radio" name="p1_q17" value="C"> C. Chất dự trữ năng lượng.</label><label><input type="radio" name="p1_q17" value="D"> D. Xúc tác sinh học.</label></div></div>
+                <div class="question check-mcq-p1" data-ans="D"><p class="question-text">Câu 18. Thành phần của xà phòng bao gồm muối của acid béo với kim loại X và các chất phụ gia. Kim loại X có thể là:</p><div class="options" style="display: grid; grid-template-columns: 1fr 1fr;"><label><input type="radio" name="p1_q18" value="A"> A. sodium.</label><label><input type="radio" name="p1_q18" value="B"> B. potassium.</label><label><input type="radio" name="p1_q18" value="C"> C. calcium.</label><label><input type="radio" name="p1_q18" value="D"> D. sodium hoặc potassium.</label></div></div>
+
+                <button type="button" id="btn-check-p1" class="btn-checkpoint" onclick="checkPart1()">🛑 XÁC THỰC TRẠM 1</button>
+                
+                <div id="remedial-p1" class="remedial-box">
+                    <h4>⚠️ BÁO ĐỘNG ĐỎ: LỖ HỔNG LÝ THUYẾT</h4>
+                    <p style="color: #374151; font-weight: bold; text-align: center;">Bạn chưa đạt đủ 12/18 câu. Hệ thống đã khóa Trạm 2. Vượt qua bài kiểm tra phụ để đi tiếp!</p>
+                    
+                    <div class="question" style="background: #fff; border: 1px solid #fcd34d;">
+                        <p class="question-text">1. (Củng cố) Nhóm chức nào quyết định tính base của các amine và amino acid?</p>
+                        <div class="options check-rem-p1" data-ans="A">
+                            <label><input type="radio" name="r1_1" value="A"> A. Nhóm amino (-NH₂)</label>
+                            <label><input type="radio" name="r1_1" value="B"> B. Nhóm carboxyl (-COOH)</label>
+                        </div>
+                    </div>
+                    <div class="question" style="background: #fff; border: 1px solid #fcd34d;">
+                        <p class="question-text">2. (Củng cố) Liên kết peptide là liên kết -CO-NH- được hình thành giữa hai đơn vị nào?</p>
+                        <div class="options check-rem-p1" data-ans="B">
+                            <label><input type="radio" name="r1_2" value="A"> A. Giữa hai phân tử amine bất kỳ</label>
+                            <label><input type="radio" name="r1_2" value="B"> B. Giữa hai đơn vị α-amino acid</label>
+                        </div>
+                    </div>
+                    <button type="button" style="width: 100%; border: none; padding: 12px; font-size: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; background: #d97706; margin-top: 10px;" onclick="verifyRemedialP1()">🔄 KIỂM TRA & ĐI TIẾP</button>
+                </div>
+            </div>
+
+            <!-- ================= PHẦN II: ĐÚNG/SAI ================= -->
+            <div id="part2-section" class="section-locked">
+                <div class="card">
+                    <h3>📂 TRẠM 2: CÂU TRẮC NGHIỆM ĐÚNG/SAI</h3>
+                    <p style="font-style: italic; color: #6b7280; margin-top: -10px; margin-bottom: 20px;">* Nhiệm vụ: Phân tích 4 nhận định (16 ý). Yêu cầu đúng >= 12/16 ý để qua ải.</p>
+
+                    <div class="question">
+                        <p class="question-text">Câu 1. Chất béo và acid béo là một trong những nguồn cung cấp dinh dưỡng thiết yếu cho cơ thể và nguyên liệu để sản xuất một số sản phẩm trong đời sống.</p>
+                        <div class="tf-grid check-tf-p2" data-ans="T"><span>a) Chất béo là nguồn cung cấp và dự trữ năng lượng ở người và động vật.</span><div class="tf-opts"><label><input type="radio" name="p2_q1a" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q1a" value="F"> SAI</label></div></div>
+                        <div class="tf-grid check-tf-p2" data-ans="T"><span>b) Ngày nay, một số loại dầu thực vật còn được dùng để sản xuất nhiên liệu sinh học (biodiesel).</span><div class="tf-opts"><label><input type="radio" name="p2_q1b" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q1b" value="F"> SAI</label></div></div>
+                        <div class="tf-grid check-tf-p2" data-ans="T"><span>c) Nhiều vitamin như A, D, E và K hòa tan tốt trong chất béo nên chúng được vận chuyển, hấp thụ cùng với chất béo.</span><div class="tf-opts"><label><input type="radio" name="p2_q1c" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q1c" value="F"> SAI</label></div></div>
+                        <div class="tf-grid check-tf-p2" data-ans="T" style="border:none;"><span>d) Chất béo là nguyên liệu cho ngành công nghiệp thực phẩm, sản xuất xà phòng và glycerol,...</span><div class="tf-opts"><label><input type="radio" name="p2_q1d" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q1d" value="F"> SAI</label></div></div>
+                    </div>
+
+                    <div class="question">
+                        <p class="question-text">Câu 2. Hằng ngày, cơ thể chúng ta được cung cấp các chất dinh dưỡng như tinh bột, đường saccharose, glucose, fructose,... Các sản phẩm làm từ giấy, gỗ, sợi cotton,... với thành phần chính là cellulose cũng được con người sử dụng.</p>
+                        <div class="tf-grid check-tf-p2" data-ans="T"><span>a) Các chất tinh bột, đường saccharose, glucose, fructose, cellulose thuộc loại carbohydrate.</span><div class="tf-opts"><label><input type="radio" name="p2_q2a" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q2a" value="F"> SAI</label></div></div>
+                        <div class="tf-grid check-tf-p2" data-ans="F"><span>b) Carbohydrate là những hợp chất hữu cơ đa chức, thường có công thức chung là Cn(H2O)m.</span><div class="tf-opts"><label><input type="radio" name="p2_q2b" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q2b" value="F"> SAI</label></div></div>
+                        <div class="tf-grid check-tf-p2" data-ans="T"><span>c) Carbohydrate được chia làm 3 nhóm chủ yếu: monosaccharide, disaccharide, polysaccharide.</span><div class="tf-opts"><label><input type="radio" name="p2_q2c" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q2c" value="F"> SAI</label></div></div>
+                        <div class="tf-grid check-tf-p2" data-ans="T" style="border:none;"><span>d) Disaccharide là nhóm carbohydrate mà khi bị thủy phân hoàn toàn, mỗi phân tử sinh ra hai phân tử monosaccharide (giống nhau hoặc khác nhau).</span><div class="tf-opts"><label><input type="radio" name="p2_q2d" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q2d" value="F"> SAI</label></div></div>
+                    </div>
+
+                    <div class="question">
+                        <p class="question-text">Câu 3. Amine là dẫn xuất của ammonia, trong đó nguyên tử hydrogen trong phân tử ammonia được thay thế bằng gốc hydrocarbon.</p>
+                        <div class="tf-grid check-tf-p2" data-ans="T"><span>a) Amine có nhiệt độ sôi cao hơn hydrocarbon có cùng số nguyên tử carbon hoặc có phân tử khối tương đương.</span><div class="tf-opts"><label><input type="radio" name="p2_q3a" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q3a" value="F"> SAI</label></div></div>
+                        <div class="tf-grid check-tf-p2" data-ans="T"><span>b) Methylamine, ethylamine, dimethylamine và trimethylamine là những chất khí có mùi tanh của cá hoặc mùi khai tương tự ammonia.</span><div class="tf-opts"><label><input type="radio" name="p2_q3b" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q3b" value="F"> SAI</label></div></div>
+                        <div class="tf-grid check-tf-p2" data-ans="F"><span>c) Các amine đều tan tốt trong nước nhờ tạo được liên kết hydrogen với nước.</span><div class="tf-opts"><label><input type="radio" name="p2_q3c" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q3c" value="F"> SAI</label></div></div>
+                        <div class="tf-grid check-tf-p2" data-ans="F" style="border:none;"><span>d) Ở điều kiện thường, các amine có phân tử khối nhỏ (như methylamine, ethylamine) tồn tại ở thể lỏng và ít tan trong nước.</span><div class="tf-opts"><label><input type="radio" name="p2_q3d" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q3d" value="F"> SAI</label></div></div>
+                    </div>
+
+                    <div class="question">
+                        <p class="question-text">Câu 4. Cấu tạo của xà phòng và chất giặt rửa phổ biến thường gồm hai phần:</p>
+                        <div class="tf-grid check-tf-p2" data-ans="T"><span>a) Phần phân cực (“đầu” ưa nước): là nhóm carboxylate (xà phòng) hoặc nhóm sulfate, sulfonate (chất giặt rửa tổng hợp). Phần này có thể hoà tan được trong nước.</span><div class="tf-opts"><label><input type="radio" name="p2_q4a" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q4a" value="F"> SAI</label></div></div>
+                        <div class="tf-grid check-tf-p2" data-ans="T"><span>b) Phần không phân cực (“đuôi” kị nước): là gốc hydrocarbon có mạch dài (R). Phần này không tan trong nước.</span><div class="tf-opts"><label><input type="radio" name="p2_q4b" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q4b" value="F"> SAI</label></div></div>
+                        <div class="tf-grid check-tf-p2" data-ans="F"><span>c) Phần phân cực (“đầu” ưa nước): là nhóm carboxylate (xà phòng) hoặc nhóm sulfate, sulfonate (chất giặt rửa tổng hợp). Phần này không hoà tan được trong nước.</span><div class="tf-opts"><label><input type="radio" name="p2_q4c" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q4c" value="F"> SAI</label></div></div>
+                        <div class="tf-grid check-tf-p2" data-ans="F" style="border:none;"><span>d) Phần không phân cực (“đuôi” kị nước): là gốc hydrocarbon có mạch dài (R). Phần này có thể tan trong nước.</span><div class="tf-opts"><label><input type="radio" name="p2_q4d" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q4d" value="F"> SAI</label></div></div>
+                    </div>
+
+                    <button type="button" id="btn-check-p2" class="btn-checkpoint" onclick="checkPart2()">🛑 XÁC THỰC TRẠM 2</button>
+                    
+                    <div id="remedial-p2" class="remedial-box">
+                        <h4>⚠️ BÁO ĐỘNG ĐỎ: SAI LỆCH LOGIC PHÂN TÍCH</h4>
+                        <p style="color: #374151; font-weight: bold; text-align: center;">Bạn chưa phân tích đủ 12/16 ý. Hãy vượt qua bài kiểm tra phụ để mở khóa Trạm 3.</p>
+                        
+                        <div class="question" style="background: #fff; border: 1px solid #fcd34d;">
+                            <p class="question-text">1. (Củng cố) Phần ưa nước của chất giặt rửa tổng hợp thường là nhóm chức nào?</p>
+                            <div class="options check-rem-p2" data-ans="B">
+                                <label><input type="radio" name="r2_1" value="A"> A. Nhóm carboxylate (-COO-Na+)</label>
+                                <label><input type="radio" name="r2_1" value="B"> B. Nhóm sulfate hoặc sulfonate</label>
+                            </div>
+                        </div>
+                        <div class="question" style="background: #fff; border: 1px solid #fcd34d;">
+                            <p class="question-text">2. (Củng cố) Disaccharide khi thủy phân hoàn toàn tạo ra bao nhiêu phân tử monosaccharide?</p>
+                            <div class="options check-rem-p2" data-ans="A">
+                                <label><input type="radio" name="r2_2" value="A"> A. 2 phân tử</label>
+                                <label><input type="radio" name="r2_2" value="B"> B. Nhiều phân tử</label>
+                            </div>
+                        </div>
+                        <button type="button" style="width: 100%; border: none; padding: 12px; font-size: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; background: #d97706; margin-top: 10px;" onclick="verifyRemedialP2()">🔄 KIỂM TRA & ĐI TIẾP</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PHẦN III: TRẢ LỜI NGẮN ================= -->
+            <div id="part3-section" class="section-locked">
+                <div class="card">
+                    <h3>📂 TRẠM 3: CÂU TRẮC NGHIỆM YÊU CẦU TRẢ LỜI NGẮN</h3>
+                    
+                    <div class="question">
+                        <p class="question-text">Câu 1. Số đồng phân ester ứng với công thức phân tử C3H6O2 là bao nhiêu?</p>
+                        <input type="text" class="check-text final-ans" data-ans="2,hai" placeholder="Nhập một con số...">
+                    </div>
+                    <div class="question">
+                        <p class="question-text">Câu 2. Thuỷ phân hoàn toàn triglyceride X thu được glycerol và 3 acid béo là lauric acid, palmitic acid và oleic acid. X có thể có bao nhiêu công thức cấu tạo?</p>
+                        <input type="text" class="check-text final-ans" data-ans="3,ba" placeholder="Nhập một con số...">
+                    </div>
+                    <div class="question">
+                        <p class="question-text">Câu 3. Trong số các carbohydrate sau: glucose, fructose, saccharose và maltose, có bao nhiêu carbohydrate có khả năng mở vòng trong dung dịch nước?</p>
+                        <input type="text" class="check-text final-ans" data-ans="3,ba" placeholder="Nhập một con số...">
+                    </div>
+                    <div class="question">
+                        <p class="question-text">Câu 4. Cho ethylamine lần lượt vào dung dịch FeCl3, dung dịch HCl, Cu(OH)2, dung dịch NaCl, dung dịch Br2. Ethylamine phản ứng được với bao nhiêu chất?</p>
+                        <input type="text" class="check-text final-ans" data-ans="3,ba" placeholder="Nhập một con số...">
+                    </div>
+                    <div class="question">
+                        <p class="question-text" style="word-break: break-all;">Câu 5. Trong phân tử peptide cho dưới đây có bao nhiêu gốc alanine?<br>
+                        H2N-CH(CH3)-CO-NH-CH2-CO-NH-CH(CH3)-CO-NH-CH(CH(CH3)2)-CO-NH-CH(CH3)-CO-NH-CH(CH2C6H5)-CO-NH-CH(CH3)-COOH</p>
+                        <input type="text" class="check-text final-ans" data-ans="4,bốn" placeholder="Nhập một con số...">
+                    </div>
+                    <div class="question">
+                        <p class="question-text">Câu 6. Cho các phát biểu sau:<br>
+                        (1) Aldehyde vừa có tính oxi hóa vừa có tính khử.<br>
+                        (2) Phenol tham gia phản ứng thế bromine dễ hơn benzene.<br>
+                        (3) Acetone phản ứng với I2/NaOH đun nóng tạo kết tủa màu vàng.<br>
+                        (4) Aldehyde tác dụng với H2 (Ni, to) thu được alcohol bậc một.<br>
+                        (5) Dung dịch phenol trong nước làm quỳ tím hóa đỏ.<br>
+                        Hãy gắn số thứ tự các phát biểu đúng theo số thứ tự tăng dần (ví dụ: 12, 234, 2345,..)</p>
+                        <input type="text" class="check-text final-ans" data-ans="1234" placeholder="Nhập chuỗi số...">
+                    </div>
+                    <div class="question">
+                        <p class="question-text">Câu 7. Vitamin A là một chất dinh dưỡng thiết yếu cho con người. Trong thực phẩm, vitamin A tồn tại ở dạng chính là retinol (chứa C, H, O). Trong phân tử retinol, phần trăm về khối lượng nguyên tố carbon và oxygen lần lượt là 83,916% và 5,594%. Biết phổ khối lượng của retinol có giá trị m/z lớn nhất bằng 286. Tính tổng số nguyên tử có trong một phân tử retinol.</p>
+                        <input type="text" class="check-text final-ans" data-ans="51" placeholder="Nhập một con số...">
+                    </div>
+                </div>
+
+                <!-- Bảng điểm -->
+                <div id="score-board">
+                    <div id="score-text"></div>
+                    <div id="error-breakdown" class="error-analysis"></div>
+                </div>
+
+                <button type="button" class="btn-submit" onclick="gradeFinal()">🚀 NỘP BÀI THI</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- AUDIO ENGINE -->
+    <script>
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let soundEnabled = true;
+
+        function initAudio() { if(!audioCtx) audioCtx = new AudioContext(); if(audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            let btn = document.getElementById('btnSound');
+            if(soundEnabled) { btn.innerHTML = '🔊 Âm thanh: BẬT'; btn.style.background = '#10b981'; initAudio(); sfxClick(); } 
+            else { btn.innerHTML = '🔇 Âm thanh: TẮT'; btn.style.background = '#6b7280'; }
+        }
+
+        function playTone(freq, type, duration, vol=0.1) {
+            if(!soundEnabled) return;
+            initAudio();
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function sfxClick() { playTone(600, 'sine', 0.1, 0.05); }
+        function sfxWrong() { playTone(300, 'sawtooth', 0.3, 0.1); setTimeout(() => playTone(250, 'sawtooth', 0.4, 0.1), 200); }
+        function sfxLevelUp() { [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => { setTimeout(() => playTone(f, 'square', 0.2, 0.05), i * 150); }); }
+        function sfxWin() { [523.25, 523.25, 523.25, 659.25, 783.99, 1046.50].forEach((f, i) => { setTimeout(() => playTone(f, 'triangle', 0.3, 0.1), i * 200); }); }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input[type="radio"]').forEach(el => el.addEventListener('change', sfxClick));
+            document.querySelectorAll('input[type="text"]').forEach(el => el.addEventListener('input', () => { if(el.value.length === 1) sfxClick(); }));
+            document.querySelectorAll('select').forEach(el => el.addEventListener('change', sfxClick));
+            document.body.addEventListener('click', initAudio, {once: true});
+        });
+    </script>
+
+    <!-- LOGIC CHẤM ĐIỂM RẼ NHÁNH TỪNG PHẦN -->
+    <script>
+        let p1_attempts = 0;
+        let p2_attempts = 0;
+
+        function checkPart1() {
+            let name = document.getElementById('studentName').value;
+            if(!name) { customAlert("Vui lòng nhập Mã định danh trước khi làm bài!"); return; }
+
+            let p1Questions = document.querySelectorAll('.check-mcq-p1');
+            let correct = 0;
+
+            p1Questions.forEach(el => {
+                let ans = el.getAttribute('data-ans');
+                let selected = el.querySelector('input[type="radio"]:checked');
+                el.querySelectorAll('label').forEach(lbl => { lbl.style.borderColor = "#e5e7eb"; lbl.style.backgroundColor = "#fff"; });
+                
+                if (selected) {
+                    if (selected.value === ans) {
+                        selected.parentElement.style.borderColor = "var(--success)";
+                        selected.parentElement.style.backgroundColor = "#d1fae5";
+                        correct++;
+                    } else {
+                        selected.parentElement.style.borderColor = "var(--danger)";
+                        selected.parentElement.style.backgroundColor = "#fee2e2";
+                        el.querySelector(`input[value="${ans}"]`).parentElement.style.borderColor = "var(--success)";
+                    }
+                } else {
+                    el.querySelector(`input[value="${ans}"]`).parentElement.style.borderColor = "var(--success)";
+                }
+            });
+
+            if (correct >= 12) {
+                sfxLevelUp(); customAlert(`🎉 Bạn đã đúng ${correct}/18 câu Trạm 1. Xuất sắc! Mở khóa Trạm 2.`);
+                document.getElementById('btn-check-p1').style.display = 'none';
+                let part2 = document.getElementById('part2-section');
+                part2.style.display = 'block'; setTimeout(() => { part2.style.opacity = '1'; }, 100);
+                part2.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                p1_attempts++;
+                if (p1_attempts === 1) {
+                    sfxWrong(); customAlert(`⚠️ Bạn chỉ đúng ${correct}/18 câu. Cần >= 12 câu. Vui lòng làm bài củng cố!`);
+                    document.getElementById('btn-check-p1').style.display = 'none';
+                    document.getElementById('remedial-p1').style.display = 'block';
+                } else {
+                    customAlert("🆘 CẤP CỨU: Hệ thống tự động điền đáp án chuẩn xác để bạn học hỏi và tiếp tục.");
+                    p1Questions.forEach(el => {
+                        let ans = el.getAttribute('data-ans');
+                        let correctRadio = el.querySelector(`input[value="${ans}"]`);
+                        if(correctRadio) {
+                            correctRadio.checked = true;
+                            el.querySelectorAll('label').forEach(lbl => { lbl.style.borderColor = "#e5e7eb"; lbl.style.backgroundColor = "#fff"; });
+                            correctRadio.parentElement.style.borderColor = "var(--success)";
+                            correctRadio.parentElement.style.backgroundColor = "#d1fae5";
+                        }
+                    });
+                    document.getElementById('btn-check-p1').style.display = 'none';
+                    let part2 = document.getElementById('part2-section');
+                    part2.style.display = 'block'; setTimeout(() => { part2.style.opacity = '1'; }, 100);
+                    part2.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }
+
+        function verifyRemedialP1() {
+            let rems = document.querySelectorAll('.check-rem-p1');
+            let allCorrect = true;
+            rems.forEach(el => {
+                let ans = el.getAttribute('data-ans');
+                let selected = el.querySelector('input[type="radio"]:checked');
+                el.querySelectorAll('label').forEach(lbl => { lbl.style.borderColor = "#e5e7eb"; lbl.style.backgroundColor = "#fff"; });
+
+                if(selected && selected.value === ans) {
+                    selected.parentElement.style.backgroundColor = "#d1fae5"; selected.parentElement.style.borderColor = "var(--success)";
+                } else {
+                    allCorrect = false;
+                    if(selected) { selected.parentElement.style.backgroundColor = "#fee2e2"; selected.parentElement.style.borderColor = "var(--danger)"; }
+                }
+            });
+
+            if(allCorrect) {
+                sfxLevelUp(); customAlert("✅ Qua ải củng cố. Hãy quay lại sửa sai Trạm 1 để đi tiếp.");
+                document.getElementById('remedial-p1').style.display = 'none';
+                document.getElementById('btn-check-p1').style.display = 'block';
+                document.getElementById('btn-check-p1').innerText = "🛑 XÁC THỰC LẠI TRẠM 1";
+                document.getElementById('btn-check-p1').scrollIntoView({ behavior: 'smooth' });
+            } else { sfxWrong(); customAlert("❌ Bạn làm sai bài củng cố. Thử lại!"); }
+        }
+
+        // --- TRẠM 2 ---
+        function checkPart2() {
+            let p2Questions = document.querySelectorAll('.check-tf-p2');
+            let correct = 0; let total = p2Questions.length; // 16
+
+            p2Questions.forEach(el => {
+                let ans = el.getAttribute('data-ans');
+                let selected = el.querySelector('input[type="radio"]:checked');
+                el.querySelectorAll('label').forEach(lbl => { lbl.style.backgroundColor = "#fff"; });
+                if (selected) {
+                    if (selected.value === ans) { selected.parentElement.style.backgroundColor = "#d1fae5"; correct++; } 
+                    else { selected.parentElement.style.backgroundColor = "#fee2e2"; }
+                }
+            });
+
+            if (correct >= 12) { 
+                sfxLevelUp(); customAlert(`🎉 Phân tích đúng ${correct}/${total} ý. Xuất sắc! Mở khóa Trạm 3.`);
+                document.getElementById('btn-check-p2').style.display = 'none';
+                let part3 = document.getElementById('part3-section');
+                part3.style.display = 'block'; setTimeout(() => { part3.style.opacity = '1'; }, 100);
+                part3.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                p2_attempts++;
+                if (p2_attempts === 1) {
+                    sfxWrong(); customAlert(`⚠️ Bạn đúng ${correct}/${total} ý. Cần >= 12 ý. Vui lòng làm bài củng cố!`);
+                    document.getElementById('btn-check-p2').style.display = 'none';
+                    document.getElementById('remedial-p2').style.display = 'block';
+                } else {
+                    customAlert("🆘 CẤP CỨU: Hệ thống tự động sửa phân tích sai giúp bạn qua ải.");
+                    p2Questions.forEach(el => {
+                        let ans = el.getAttribute('data-ans');
+                        let correctRadio = el.querySelector(`input[value="${ans}"]`);
+                        if(correctRadio) {
+                            correctRadio.checked = true;
+                            el.querySelectorAll('label').forEach(lbl => { lbl.style.backgroundColor = "#fff"; });
+                            correctRadio.parentElement.style.backgroundColor = "#d1fae5";
+                        }
+                    });
+                    document.getElementById('btn-check-p2').style.display = 'none';
+                    let part3 = document.getElementById('part3-section');
+                    part3.style.display = 'block'; setTimeout(() => { part3.style.opacity = '1'; }, 100);
+                    part3.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }
+
+        function verifyRemedialP2() {
+            let rems = document.querySelectorAll('.check-rem-p2');
+            let allCorrect = true;
+            rems.forEach(el => {
+                let ans = el.getAttribute('data-ans');
+                let selected = el.querySelector('input[type="radio"]:checked');
+                el.querySelectorAll('label').forEach(lbl => { lbl.style.borderColor = "#e5e7eb"; lbl.style.backgroundColor = "#fff"; });
+
+                if(selected && selected.value === ans) {
+                    selected.parentElement.style.backgroundColor = "#d1fae5"; selected.parentElement.style.borderColor = "var(--success)";
+                } else {
+                    allCorrect = false;
+                    if(selected) { selected.parentElement.style.backgroundColor = "#fee2e2"; selected.parentElement.style.borderColor = "var(--danger)"; }
+                }
+            });
+
+            if(allCorrect) {
+                sfxLevelUp(); customAlert("✅ Qua ải củng cố. Hãy quay lại sửa phân tích Trạm 2 để đi tiếp.");
+                document.getElementById('remedial-p2').style.display = 'none';
+                document.getElementById('btn-check-p2').style.display = 'block';
+                document.getElementById('btn-check-p2').innerText = "🛑 XÁC THỰC LẠI TRẠM 2";
+                document.getElementById('btn-check-p2').scrollIntoView({ behavior: 'smooth' });
+            } else { sfxWrong(); customAlert("❌ Bạn làm sai bài củng cố. Thử lại!"); }
+        }
+
+        // --- TỔNG KẾT ---
+        function gradeFinal() {
+            quizStarted = false; // Tắt chống gian lận
+            clearInterval(timerInterval); // Dừng đồng hồ
+
+            // Chấm Trả lời ngắn
+            let correctShort = 0;
+            document.querySelectorAll('.final-ans').forEach(el => {
+                let userVal = el.value.trim().toLowerCase();
+                let ansArr = el.getAttribute('data-ans').split(',');
+                if (ansArr.includes(userVal) && userVal !== "") {
+                    el.style.borderColor = "var(--success)"; el.style.backgroundColor = "#d1fae5"; correctShort++;
+                } else {
+                    el.style.borderColor = "var(--danger)"; el.style.backgroundColor = "#fee2e2";
+                    let fb = document.createElement("span");
+                    fb.className = "feedback err";
+                    fb.innerText = "✗ Đáp án đúng: " + ansArr[0];
+                    if(!el.nextElementSibling) el.parentNode.insertBefore(fb, el.nextSibling);
+                }
+            });
+
+            let correctP1 = document.querySelectorAll('.check-mcq-p1 input[type="radio"]:checked').length; 
+            let correctP2 = document.querySelectorAll('.check-tf-p2 input[type="radio"]:checked').length;
+
+            let totalItems = 18 + 16 + 7; // MCQ(18) + TF(16) + Short(7) = 41
+            let totalCorrect = correctP1 + correctP2 + correctShort;
+            let finalScore = (totalCorrect / 41) * 10;
+
+            let board = document.getElementById('score-board');
+            board.style.display = 'block';
+            
+            sfxWin(); 
+            let scoreTextHTML = `ĐIỂM TỔNG KẾT: ${finalScore.toFixed(2)} / 10<br><span style="font-size:1.1rem; color:#4b5563;">(Khám phá đúng ${totalCorrect}/41 manh mối)</span>`;
+            document.getElementById('score-text').innerHTML = scoreTextHTML;
+
+            let breakdownHTML = `<h4>📊 Báo cáo AI:</h4><ul>
+                <li><b>Trạm 1 (Trắc nghiệm nhiều lựa chọn):</b> Đúng ${correctP1}/18 câu</li>
+                <li><b>Trạm 2 (Phân tích Đúng/Sai):</b> Đúng ${correctP2}/16 ý</li>
+                <li><b>Trạm 3 (Trả lời ngắn):</b> Đúng ${correctShort}/7 câu</li>
+            </ul>`;
+            document.getElementById('error-breakdown').innerHTML = breakdownHTML;
+
+            // GỬI GOOGLE SHEETS
+            let webAppUrl = "https://script.google.com/macros/s/AKfycbyfbE7jc62R7WcYncvG0Sbdjo-AZbtsY51GmGDPHJfUPUwn9XF3GXt89p2CtwGqJD3G4w/exec"; 
+            let payload = {
+                hoTen: document.getElementById('studentName').value,
+                lop: document.getElementById('studentClass').value || "Không ghi",
+                diem: finalScore.toFixed(2),
+                cauDung: totalCorrect,
+                cauSai: 41 - totalCorrect,
+                cauChuaLam: 0,
+                tongSoCau: 41,
+                loi_hs1: 0, 
+                loi_hs2: 0,
+                loi_hs3: 0,
+                loi_hs4_mcq: 18 - correctP1,
+                loi_hs4_tf: 16 - correctP2
+            };
+
+            let submitBtn = document.querySelector('.btn-submit');
+            submitBtn.innerText = "⏳ ĐANG LƯU DỮ LIỆU LÊN HỆ THỐNG...";
+            submitBtn.disabled = true;
+
+            fetch(webAppUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            }).then(r => r.json()).then(data => {
+                submitBtn.innerText = "✅ ĐÃ NỘP BÀI & LƯU ĐIỂM THÀNH CÔNG";
+            }).catch(e => {
+                submitBtn.innerText = "⚠️ LƯU ĐIỂM TRÊN MÁY (CHƯA KẾT NỐI SHEETS)";
+                submitBtn.disabled = false;
+            });
+        }
+    </script>
+
+    <!-- HỆ THỐNG CHỐNG GIAN LẬN & ĐỒNG HỒ (ANTI-CHEAT) -->
+    <script>
+        let quizStarted = false;
+        let isCheating = false;
+        let isAlerting = false; // Cờ theo dõi xem hệ thống có đang hiện thông báo Pop-up không
+
+        // Khởi tạo hàm thông báo tùy chỉnh để không kích hoạt lỗi gian lận
+        function customAlert(msg) {
+            isAlerting = true;
+            window.alert(msg);
+            // Đợi 1 giây sau khi đóng thông báo mới bật lại chống gian lận
+            setTimeout(() => { isAlerting = false; }, 1000); 
+        }
+        
+        // --- Đồng hồ đếm ngược 45 phút ---
+        let timeLeft = 20 * 60; 
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    customAlert("⏰ HẾT GIỜ LÀM BÀI! Hệ thống sẽ tự động nộp kết quả hiện tại.");
+                    gradeFinal();
+                    return;
+                }
+                timeLeft--;
+                let m = Math.floor(timeLeft / 60);
+                let s = timeLeft % 60;
+                document.getElementById('timer-box').innerText = `⏳ ${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+                if (timeLeft < 300) { document.getElementById('timer-box').style.color = "#ef4444"; } // Đỏ khi còn dưới 5 phút
+            }, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Kích hoạt giám sát và đồng hồ khi học sinh bắt đầu tương tác
+            document.querySelectorAll('input, select').forEach(el => {
+                el.addEventListener('focus', () => { 
+                    if(!quizStarted) { quizStarted = true; startTimer(); }
+                }, {once: true});
+            });
+            document.body.addEventListener('touchstart', () => { 
+                if(!quizStarted) { quizStarted = true; startTimer(); }
+            }, {once: true, passive: true});
+        });
+
+        function handleCheat() {
+            if (!quizStarted || isCheating || isAlerting) return; // Bỏ qua phạt nếu đang hiện thông báo chuyển trạm 
+            
+            let nameInput = document.getElementById('studentName');
+            if (!nameInput.value.trim()) nameInput.value = "Kẻ ẩn danh";
+            
+            isCheating = true;
+            if(typeof sfxWrong === 'function') sfxWrong();
+            
+            customAlert("🚨 CẢNH BÁO VI PHẠM QUY CHẾ THI! 🚨\n\nHệ thống phát hiện bạn đã rời khỏi bài thi, chia đôi màn hình hoặc mở ứng dụng khác để tra cứu.\n\nBài làm của bạn đã bị KHÓA LẬP TỨC và hệ thống đang tự động nộp kết quả 0 điểm về cho Giáo viên!");
+            
+            nameInput.value = "[GIAN LẬN] " + nameInput.value;
+            document.body.style.pointerEvents = "none";
+            document.getElementById('quizForm').style.filter = "grayscale(100%) blur(3px)";
+            document.getElementById('quizForm').style.opacity = "0.7";
+            
+            gradeFinal();
+        }
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === 'hidden') handleCheat();
+        });
+
+        window.addEventListener("blur", () => {
+            handleCheat();
+        });
+    </script>
+
+</body>
+</html>
